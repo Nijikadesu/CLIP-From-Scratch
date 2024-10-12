@@ -2,6 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from data.dataset import MNIST
 from data.data_config import get_word_dict
 
 # Implementation of Text Decoder, using Transformer as Backbone.
@@ -82,14 +83,8 @@ class Tokenizer(nn.Module):
         self.positional_encoding = PositionalEncoding(d_model=16, max_seq_len=19)
 
     def forward(self, batch):
-        batch_list = []
-        for sentence in batch:
-            word_list = []
-            for ch in list(sentence):
-                word_list.append(self.word_dict[ch])
-            batch_list.append(word_list)
-        word_tensor = torch.Tensor(batch_list).long()
-        embedding = self.embedding(word_tensor)
+        embedding = self.embedding(batch)
+        print(embedding.device)
         embedding += self.positional_encoding()
         return embedding
 
@@ -112,7 +107,6 @@ class TextEncoder(nn.Module):
 
     def forward(self, x):
         x = self.tokenizer(x)
-        print(x.shape)
 
         residual_x = x
         x = self.self_attention(x)
@@ -131,9 +125,9 @@ class TextEncoder(nn.Module):
         return x
 
 if __name__ == '__main__':
-    x = ['a photo of number 3', 'a photo of number 4']
     word_dict = get_word_dict()
+    label = torch.ones((1, 19)).long()
     encoder = TextEncoder(word_dict=word_dict)
     print(encoder)
-    output = encoder(x)
+    output = encoder(label)
     print(output.shape)

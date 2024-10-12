@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from data.data_config import get_word_dict
 from structure.TextEncoder import TextEncoder
 from structure.ImageEncoder import ImageEncoderResNet
 
@@ -23,8 +24,18 @@ class CLIP(nn.Module):
         return logits
 
 if __name__ == '__main__':
-    clip = CLIP()
-    image = torch.rand(5, 1, 28, 28)
-    text = torch.rand(5, 19, 16)
+    word_dict = get_word_dict()
+    clip = CLIP(word_dict=word_dict)
+    image = torch.rand(10, 1, 28, 28)
+    text = ['a photo of number 0',
+            'a photo of number 1',
+            'a photo of number 2',
+            'a photo of number 3',
+            'a photo of number 4',
+            'a photo of number 5',
+            'a photo of number 6',
+            'a photo of number 7',
+            'a photo of number 8',
+            'a photo of number 9',]
     logits = clip(image, text)
     print(logits.shape)
